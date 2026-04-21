@@ -557,6 +557,70 @@ S3StorageConfig
 
 
 -----------------
+OciStorageConfig
+-----------------
+``oci.bucket.name``
+  OCI bucket to store log segments
+
+  * Type: string
+  * Valid Values: non-empty string
+  * Importance: high
+
+``oci.namespace.name``
+  OCI namespace which the bucket belongs to
+
+  * Type: string
+  * Valid Values: non-empty string
+  * Importance: high
+
+``oci.region``
+  OCI region where the bucket is placed
+
+  * Type: string
+  * Valid Values: non-empty string
+  * Importance: high
+
+``oci.auth.type``
+  Authentication type to use. 'config_file' uses ~/.oci/config (default, for local development). 'instance_principal' uses instance principal authentication (for OCI compute instances). 'workload_identity' uses OKE workload identity (for pods running on OKE).
+
+  * Type: string
+  * Default: config_file
+  * Valid Values: [config_file, instance_principal, workload_identity]
+  * Importance: high
+
+``oci.config.file.path``
+  Path to the OCI config file. Only used when oci.auth.type is 'config_file'.
+
+  * Type: string
+  * Default: null
+  * Importance: medium
+
+``oci.config.file.profile``
+  Profile name in the OCI config file. Only used when oci.auth.type is 'config_file'.
+
+  * Type: string
+  * Default: DEFAULT
+  * Importance: medium
+
+``oci.multipart.upload.part.size``
+  Size of parts in bytes to use when uploading. All parts but the last one will have this size. The smaller the part size, the more calls to OCI are needed to upload a file; increasing costs. The higher the part size, the more memory is needed to buffer the part. Valid values: between 5MiB and 2GiB
+
+  * Type: int
+  * Default: 26214400
+  * Valid Values: [5242880,...,2147483647]
+  * Importance: medium
+
+``oci.storage.tier``
+  Defines which storage tier to use when uploading objects
+
+  * Type: string
+  * Default: Standard
+  * Valid Values: [Standard, InfrequentAccess, Archive, UnknownEnumValue]
+  * Importance: medium
+
+
+
+-----------------
 FilesystemStorageConfig
 -----------------
 .. Only for development/testing purposes

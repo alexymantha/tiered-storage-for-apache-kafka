@@ -24,6 +24,7 @@ dependencies {
     implementation project(":storage:gcs")
     implementation project(":storage:azure")
     implementation project(":storage:filesystem")
+    implementation project(":storage:oci")
 }
 
 tasks.register('genConfigsDocs', JavaExec) {
