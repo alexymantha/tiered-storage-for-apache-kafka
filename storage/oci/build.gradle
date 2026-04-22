@@ -21,12 +21,6 @@ dependencies {
 
     def excludeFromOracleDeps = { ModuleDependency dep ->
         dep.exclude group: "org.slf4j"
-        //Exclude these to avoid conflicts with Kafka, which also depends on these jars
-        dep.exclude group: "org.glassfish.jersey.core"
-        dep.exclude group: "org.glassfish.jersey.media"
-        dep.exclude group: "org.glassfish.jersey.inject"
-        dep.exclude group: "org.glassfish.jersey.connectors"
-        dep.exclude group: "jakarta.ws.rs"
     }
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage:$oracleSdkVersion") { excludeFromOracleDeps(it) }
     implementation("com.oracle.oci.sdk:oci-java-sdk-addons-oke-workload-identity:$oracleSdkVersion") { excludeFromOracleDeps(it) }
