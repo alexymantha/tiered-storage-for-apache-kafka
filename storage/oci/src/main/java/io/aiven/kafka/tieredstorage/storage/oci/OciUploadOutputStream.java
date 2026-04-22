@@ -92,7 +92,7 @@ public class OciUploadOutputStream extends OutputStream {
         if (isClosed()) {
             throw new IllegalStateException("Already closed");
         }
-        if (b.length == 0) {
+        if (len == 0) {
             return;
         }
         try {

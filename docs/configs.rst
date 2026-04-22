@@ -630,7 +630,7 @@ OciStorageConfig
 
   * Type: string
   * Default: Standard
-  * Valid Values: [Standard, InfrequentAccess, Archive, UnknownEnumValue]
+  * Valid Values: [Standard, InfrequentAccess, Archive]
   * Importance: medium
 
 

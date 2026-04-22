@@ -137,11 +137,11 @@ public class OciStorage implements StorageBackend {
 
     @Override
     public InputStream fetch(final ObjectKey key, final BytesRange range) throws StorageBackendException {
-        try {
-            if (range.isEmpty()) {
-                return InputStream.nullInputStream();
-            }
+        if (range.isEmpty()) {
+            return InputStream.nullInputStream();
+        }
 
+        try {
             final GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .namespaceName(namespaceName)
                 .bucketName(bucketName)
