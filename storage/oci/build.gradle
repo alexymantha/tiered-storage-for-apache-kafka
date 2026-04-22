@@ -19,21 +19,33 @@ archivesBaseName = "storage-oci"
 dependencies {
     implementation project(":storage:core")
 
+    // Exclude all Jersey and JAX-RS transitive deps from the OCI SDK so the plugin
+    // uses Kafka's bundled Jersey 3.1.x (jakarta namespace) at runtime via the parent
+    // classloader. Mixing plugin-bundled Jersey with Kafka's bundled Jersey causes
+    // ClassCastException between AutoDiscoverable instances loaded from different
+    // classloaders (ChildFirstClassLoader vs app classloader).
     def excludeFromOracleDeps = { ModuleDependency dep ->
         dep.exclude group: "org.slf4j"
+        dep.exclude group: "org.glassfish.jersey.core"
+        dep.exclude group: "org.glassfish.jersey.media"
+        dep.exclude group: "org.glassfish.jersey.inject"
+        dep.exclude group: "org.glassfish.jersey.connectors"
+        dep.exclude group: "org.glassfish.jersey.containers"
+        dep.exclude group: "org.glassfish.jersey.ext"
+        dep.exclude group: "jakarta.ws.rs"
+        dep.exclude group: "javax.ws.rs"
     }
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage:$oracleSdkVersion") {
         excludeFromOracleDeps(it)
-        // Exclude the Jersey 2.x HTTP client pulled transitively; we use jersey3 instead.
         exclude group: "com.oracle.oci.sdk", module: "oci-java-sdk-common-httpclient-jersey"
     }
     implementation("com.oracle.oci.sdk:oci-java-sdk-addons-oke-workload-identity:$oracleSdkVersion") {
         excludeFromOracleDeps(it)
         exclude group: "com.oracle.oci.sdk", module: "oci-java-sdk-common-httpclient-jersey"
     }
-    // Use the Jersey 3.x HTTP client — aligns with Kafka 4.2's bundled Jersey 3.1.x (jakarta namespace),
-    // avoiding classloader conflicts between Jersey 2.x (javax) and 3.x (jakarta).
-    implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3:$oracleSdkVersion") { excludeFromOracleDeps(it) }
+    implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3:$oracleSdkVersion") {
+        excludeFromOracleDeps(it)
+    }
 
     implementation project(':commons')
 
