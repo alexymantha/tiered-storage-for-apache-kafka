@@ -46,6 +46,12 @@ dependencies {
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3:$oracleSdkVersion") {
         excludeFromOracleDeps(it)
     }
+    // OCI Jersey3 HTTP client requires jersey-media-json-jackson which Kafka does not bundle.
+    // Pin to Kafka 4.2's Jersey version (3.1.10) to stay in sync with the parent classloader's
+    // jersey-common/client.
+    implementation("org.glassfish.jersey.media:jersey-media-json-jackson:3.1.10") {
+        excludeFromOracleDeps(it)
+    }
 
     implementation project(':commons')
 
