@@ -22,6 +22,18 @@ import com.oracle.bmc.objectstorage.ObjectStorageClient;
 
 class OciClientBuilder {
 
+    // Jersey scans META-INF/services across all classloaders for AutoDiscoverable providers.
+    // In a Kafka plugin context, Kafka's parent classloader contains a different version of
+    // jersey-server (with WadlAutoDiscoverable) than the plugin's jersey-common (with the
+    // AutoDiscoverable interface). The provider gets loaded by the parent classloader and
+    // fails to cast to the plugin's interface, causing ClassCastException at startup.
+    // Disabling auto-discovery sidesteps the issue entirely; the OCI SDK does not rely on
+    // auto-discovered providers.
+    static {
+        System.setProperty("jersey.config.disableAutoDiscovery", "true");
+        System.setProperty("jersey.config.client.disableAutoDiscovery", "true");
+    }
+
     static ObjectStorageClient build(final OciStorageConfig config) {
         final Region region = config.region();
         final AbstractAuthenticationDetailsProvider credentialsProvider = config.credentialsProvider();
