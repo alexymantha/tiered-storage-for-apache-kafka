@@ -16,12 +16,10 @@
 
 package io.aiven.kafka.tieredstorage.storage.oci;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import io.aiven.kafka.tieredstorage.storage.BytesRange;
 import io.aiven.kafka.tieredstorage.storage.InvalidRangeException;
@@ -37,7 +35,7 @@ import com.oracle.bmc.objectstorage.model.StorageTier;
 import com.oracle.bmc.objectstorage.requests.DeleteObjectRequest;
 import com.oracle.bmc.objectstorage.requests.GetObjectRequest;
 
-public class OciStorage implements StorageBackend {
+public class OciStorage implements StorageBackend, Closeable {
 
     private ObjectStorageClient objectStorageClient;
     private String namespaceName;
@@ -110,15 +108,6 @@ public class OciStorage implements StorageBackend {
     }
 
     @Override
-    public void delete(final Set<ObjectKey> keys) throws StorageBackendException {
-        final List<ObjectKey> objectKeys = new ArrayList<>(keys);
-        // OCI does not support batch delete
-        for (final ObjectKey objectKey : objectKeys) {
-            this.delete(objectKey);
-        }
-    }
-
-    @Override
     public InputStream fetch(final ObjectKey key) throws StorageBackendException {
         final GetObjectRequest getObjectRequest = GetObjectRequest.builder()
             .namespaceName(namespaceName)
@@ -160,7 +149,6 @@ public class OciStorage implements StorageBackend {
         }
     }
 
-    @Override
     public void close() throws IOException {
         if (objectStorageClient != null) {
             objectStorageClient.close();
