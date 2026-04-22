@@ -1,0 +1,59 @@
+/*
+ * Copyright 2025 Aiven Oy
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+archivesBaseName = "storage-oci"
+
+dependencies {
+    implementation project(":storage:core")
+
+    // Exclude all Jersey and JAX-RS transitive deps from the OCI SDK so the plugin
+    // uses Kafka's bundled Jersey 3.1.x (jakarta namespace) at runtime via the parent
+    // classloader. Mixing plugin-bundled Jersey with Kafka's bundled Jersey causes
+    // ClassCastException between AutoDiscoverable instances loaded from different
+    // classloaders (ChildFirstClassLoader vs app classloader).
+    def excludeFromOracleDeps = { ModuleDependency dep ->
+        dep.exclude group: "org.slf4j"
+        dep.exclude group: "org.glassfish.jersey.core"
+        dep.exclude group: "org.glassfish.jersey.media"
+        dep.exclude group: "org.glassfish.jersey.inject"
+        dep.exclude group: "org.glassfish.jersey.connectors"
+        dep.exclude group: "org.glassfish.jersey.containers"
+        dep.exclude group: "org.glassfish.jersey.ext"
+        dep.exclude group: "jakarta.ws.rs"
+        dep.exclude group: "javax.ws.rs"
+    }
+    implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage:$oracleSdkVersion") {
+        excludeFromOracleDeps(it)
+        exclude group: "com.oracle.oci.sdk", module: "oci-java-sdk-common-httpclient-jersey"
+    }
+    implementation("com.oracle.oci.sdk:oci-java-sdk-addons-oke-workload-identity:$oracleSdkVersion") {
+        excludeFromOracleDeps(it)
+        exclude group: "com.oracle.oci.sdk", module: "oci-java-sdk-common-httpclient-jersey"
+    }
+    implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3:$oracleSdkVersion") {
+        excludeFromOracleDeps(it)
+    }
+    // OCI Jersey3 HTTP client requires jersey-media-json-jackson which Kafka does not bundle.
+    // Pin to Kafka 4.2's Jersey version (3.1.10) to stay in sync with the parent classloader's
+    // jersey-common/client.
+    implementation("org.glassfish.jersey.media:jersey-media-json-jackson:3.1.10") {
+        excludeFromOracleDeps(it)
+    }
+
+    implementation project(':commons')
+
+    testImplementation(testFixtures(project(":storage:core")))
+}
