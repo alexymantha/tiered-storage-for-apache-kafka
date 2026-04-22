@@ -181,6 +181,18 @@ class OciStorageConfigTest {
     }
 
     @Test
+    void shouldRejectUnknownEnumValueStorageTier() {
+        assertThatThrownBy(() -> new OciStorageConfig(Map.of(
+            "oci.bucket.name", BUCKET_NAME,
+            "oci.namespace.name", NAMESPACE,
+            "oci.region", REGION,
+            "oci.storage.tier", "UnknownEnumValue"
+        )))
+            .isInstanceOf(ConfigException.class)
+            .hasMessageContaining("oci.storage.tier");
+    }
+
+    @Test
     void configFileProfileDefaultsToDefault() {
         final var configs = Map.<String, Object>of(
             "oci.bucket.name", BUCKET_NAME,

@@ -133,6 +133,7 @@ public class OciStorageConfig extends AbstractConfig {
                 OCI_STORAGE_TIER_DEFAULT,
                 ConfigDef.ValidString.in(
                     Arrays.stream(StorageTier.values())
+                        .filter(st -> st != StorageTier.UnknownEnumValue)
                         .map(Object::toString)
                         .toArray(String[]::new)),
                 ConfigDef.Importance.MEDIUM,
@@ -174,7 +175,10 @@ public class OciStorageConfig extends AbstractConfig {
             }
             return new ConfigFileAuthenticationDetailsProvider(profile);
         } catch (final Exception e) {
-            throw new ConfigException("Failed to create OCI config file authentication provider: " + e.getMessage());
+            final ConfigException ce =
+                new ConfigException("Failed to create OCI config file authentication provider: " + e.getMessage());
+            ce.initCause(e);
+            throw ce;
         }
     }
 
@@ -189,9 +193,10 @@ public class OciStorageConfig extends AbstractConfig {
     public StorageTier storageTier() {
         final String tierValue = getString(OCI_STORAGE_TIER_CONFIG);
         return Arrays.stream(StorageTier.values())
+            .filter(st -> st != StorageTier.UnknownEnumValue)
             .filter(st -> st.toString().equals(tierValue))
             .findFirst()
-            .orElse(StorageTier.UnknownEnumValue);
+            .orElseThrow(() -> new IllegalStateException("Unknown storage tier: " + tierValue));
     }
 
     public int uploadPartSize() {
